@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><meta name="description" content="Editorial Codex: historias que te encuentran."><title>Editorial Codex · Tu próxima historia</title><link rel="stylesheet" href="css/styles.css"><script src="js/app.js" defer></script>
+</head>
+<body>
+<svg class="iconos" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<symbol id="icono-libro" viewBox="0 0 24 24"><path d="M12 5c-3-2-6-2-10-1v15c4-1 7-1 10 1 3-2 6-2 10-1V4c-4-1-7-1-10 1Zm0 0v15"/></symbol>
+<symbol id="icono-inicio" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/></symbol>
+<symbol id="icono-grilla" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+<symbol id="icono-generos" viewBox="0 0 24 24"><path d="M4 3h7l10 10-8 8L3 11V4Z"/><circle cx="7" cy="7" r="1"/></symbol>
+<symbol id="icono-persona" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
+<symbol id="icono-flecha" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="icono-buscar" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></symbol>
+<symbol id="icono-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></symbol>
+<symbol id="icono-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+<symbol id="icono-cerrar" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+<symbol id="icono-corazon" viewBox="0 0 24 24"><path d="M12 21S2 14 2 7a5 5 0 0 1 10-1 5 5 0 0 1 10 1c0 7-10 14-10 14Z"/></symbol>
+<symbol id="icono-bolsa" viewBox="0 0 24 24"><path d="M4 7h16l1 14H3L4 7Zm4 0V5a4 4 0 0 1 8 0v2"/></symbol>
+<symbol id="icono-destello" viewBox="0 0 24 24"><path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7Z"/></symbol>
+</svg>
+<a class="salto" href="#contenido">Saltar al contenido</a>
+<header class="marca">
+  <span class="marca__halo" aria-hidden="true"></span>
+  <a class="marca__enlace insignia" href="#inicio" aria-label="Editorial Codex, inicio">
+    <span class="marca__emblema"><svg class="marca__icono insignia__icono" aria-hidden="true"><use href="#icono-libro"/></svg></span>
+    <span class="marca__palabras">
+      <span class="marca__editorial insignia__texto">Editorial</span>
+      <strong class="marca__codex insignia__texto insignia__reflejo">Codex</strong>
+      <span class="marca__estrellas" aria-hidden="true"><span class="insignia__estrella marca__estrella marca__estrella--primera">✦</span><span class="insignia__estrella marca__estrella marca__estrella--segunda">✦</span><span class="insignia__estrella marca__estrella marca__estrella--tercera">✦</span></span>
+    </span>
+  </a>
+  <div class="marca__ornamento" aria-hidden="true"><span>✦</span></div>
+  <p class="marca__lema">Tus historias. Tu próximo mundo.</p>
+</header>
+<div class="aplicacion">
+<div class="velo" id="velo" hidden></div>
+<aside class="lateral" id="menu-lateral" aria-label="Navegación y cuenta">
+<div class="lateral__cabecera"><a class="lateral__marca insignia" href="#inicio" aria-label="Editorial Codex, inicio"><svg class="insignia__icono" aria-hidden="true"><use href="#icono-libro"/></svg><span class="lateral__texto insignia__palabras"><span class="lateral__editorial insignia__texto">Editorial</span><strong class="insignia__texto insignia__reflejo">Codex</strong><span class="insignia__estrellas" aria-hidden="true"><span class="insignia__estrella insignia__estrella--primera">✦</span><span class="insignia__estrella insignia__estrella--segunda">✦</span></span></span></a><button class="boton-icono lateral__cerrar" id="cerrar-menu" aria-label="Cerrar menú"><svg aria-hidden="true"><use href="#icono-cerrar"/></svg></button></div>
+<p class="lateral__etiqueta lateral__texto">TU BIBLIOTECA</p>
+<nav class="navegacion" aria-label="Principal">
+<a class="navegacion__enlace" href="#inicio" data-vista="inicio" aria-label="Inicio"><svg aria-hidden="true"><use href="#icono-inicio"/></svg><span class="lateral__texto">Inicio</span><span class="navegacion__tooltip" aria-hidden="true">Inicio</span></a>
+<a class="navegacion__enlace" href="#catalogo" data-vista="catalogo" aria-label="Catálogo"><svg aria-hidden="true"><use href="#icono-libro"/></svg><span class="lateral__texto">Catálogo</span><span class="navegacion__tooltip" aria-hidden="true">Catálogo</span></a>
+<a class="navegacion__enlace" href="#generos" data-vista="generos" aria-label="Géneros"><svg aria-hidden="true"><use href="#icono-grilla"/></svg><span class="lateral__texto">Géneros</span><span class="navegacion__tooltip" aria-hidden="true">Géneros</span></a>
+<a class="navegacion__enlace" href="#escritores" data-vista="escritores" aria-label="Escritores"><svg aria-hidden="true"><use href="#icono-persona"/></svg><span class="lateral__texto">Escritores</span><span class="navegacion__tooltip" aria-hidden="true">Escritores</span></a>
+<a class="navegacion__enlace" href="#ingresar" data-vista="ingresar" aria-label="Mi cuenta / Ingresar"><svg aria-hidden="true"><use href="#icono-persona"/></svg><span class="lateral__texto">Mi cuenta / Ingresar</span><span class="navegacion__tooltip" aria-hidden="true">Mi cuenta / Ingresar</span></a>
+</nav>
+<div class="lateral__invitacion lateral__texto"><svg aria-hidden="true"><use href="#icono-destello"/></svg><h2>Una historia te espera</h2><p>Encontrá ese libro que no vas a querer soltar.</p><a class="boton boton--pequeno" href="#catalogo">Explorar catálogo <span aria-hidden="true">↗</span></a></div>
+<div class="usuario"><div class="usuario__menu" id="menu-usuario" hidden><button id="perfil">Mi perfil</button><button id="salir">Cerrar sesión</button></div><button class="usuario__boton" id="boton-usuario" aria-label="Abrir menú de usuario" aria-expanded="false" aria-controls="menu-usuario"><span class="usuario__avatar" id="avatar">L</span><span class="usuario__datos lateral__texto"><strong id="nombre-usuario">Lector invitado</strong><span id="estado-usuario">Tu próxima lectura está acá</span></span><span class="lateral__texto" aria-hidden="true">⌄</span></button></div>
+<button class="lateral__colapsar" id="colapsar" aria-label="Colapsar menú lateral" aria-expanded="true" aria-controls="menu-lateral"><svg aria-hidden="true"><use href="#icono-flecha"/></svg></button>
+</aside>
+<div class="principal" id="principal"><header class="barra"><button class="boton-icono barra__hamburguesa" id="abrir-menu" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-lateral"><svg aria-hidden="true"><use href="#icono-menu"/></svg></button><span class="barra__ruta" id="ruta">Tu espacio de lectura</span><form class="buscador" id="form-buscar" role="search"><label class="solo-lectores" for="busqueda">Buscar libros por título</label><svg aria-hidden="true"><use href="#icono-buscar"/></svg><input id="busqueda" type="search" placeholder="Buscá tu próxima historia…" autocomplete="off"><button class="solo-lectores buscador__enviar" type="submit">Buscar</button></form><button class="boton-icono" id="tema" aria-label="Activar tema claro" aria-pressed="false"><svg aria-hidden="true"><use href="#icono-sol"/></svg></button></header><main class="contenido" id="contenido" tabindex="-1"></main><footer class="pie"><span>Editorial Codex</span><span>Hecho para quienes aman leer · Prototipo visual</span></footer></div>
+</div>
+<div class="notificaciones" id="notificaciones" role="status" aria-live="polite" aria-atomic="true"></div>
+<noscript><p class="sin-script">Activá JavaScript para explorar el catálogo y las vistas de este prototipo.</p></noscript>
+</body></html>
+
+
+
