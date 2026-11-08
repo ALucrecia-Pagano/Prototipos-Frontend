@@ -1,2 +1,4 @@
 .vscode/
-img/inspo-booknest.png
+editorial-codex/img/inspo-booknest.png
+node_modules/
+dist/
