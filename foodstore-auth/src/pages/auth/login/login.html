@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+    <title>Ingresar | Food Store</title>
+    <script type="module" src="/src/main.ts"></script>
+</head>
+
+<body>
+    <main class="auth">
+        <aside class="auth__hero" aria-hidden="true">
+            <img class="auth__hero-img" src="/img/hero-burger.jpg" alt="" decoding="async">
+            <div class="auth__hero-text">
+                <p class="auth__hero-tagline">Hecho con amor</p>
+                <p class="auth__hero-title">Comida rica, <span class="auth__hero-accent">sin vueltas.</span></p>
+            </div>
+        </aside>
+        <section class="auth__card">
+            <p class="auth__brand">Food <span class="auth__brand-accent">Store</span></p>
+            <h1 class="auth__title">Ingresar</h1>
+            <p class="auth__subtitle">Tu comida favorita, a un clic.</p>
+            <form id="form-login" class="auth__form" novalidate>
+                <div class="auth__field">
+                    <label class="auth__label" for="email">Email</label>
+                    <input class="auth__input" type="email" name="email" id="email" autocomplete="email">
+                </div>
+                <div class="auth__field">
+                    <label class="auth__label" for="password">Contraseña</label>
+                    <input class="auth__input" type="password" name="password" id="password"
+                        autocomplete="current-password">
+                </div>
+                <p id="mensaje" class="auth__message" aria-live="polite"></p>
+                <button type="submit" class="auth__button">Ingresar</button>
+            </form>
+            <p class="auth__footer">¿No tenés cuenta? <a class="auth__link" href="../registro/registro.html">Registrate</a>
+            </p>
+        </section>
+    </main>
+    <script type="module" src="./login.ts"></script>
+</body>
+
+</html>

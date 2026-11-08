@@ -2,7 +2,7 @@
 
 Prototipo visual de una librería online, hecho con HTML, CSS y JavaScript nativos.
 
-**Ver online:** https://alucrecia-pagano.github.io/Prototipos-Frontend/
+**Ver online:** https://alucrecia-pagano.github.io/Prototipos-Frontend/editorial-codex/
 
 Incluye catálogo, búsqueda y filtros, escritores, detalles de libros, temas claro/oscuro y formularios de demostración. Las compras y las cuentas son simuladas; no se guardan contraseñas.
 
