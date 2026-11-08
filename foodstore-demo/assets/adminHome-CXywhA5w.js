@@ -1,0 +1,1 @@
+import{b as e,l as n}from"./main-CAA0FSG_.js";const s=document.querySelector("#logoutButton"),t=document.querySelector("#userEmail"),o=e();t&&o&&(t.textContent=o.email);s?.addEventListener("click",()=>{n()});

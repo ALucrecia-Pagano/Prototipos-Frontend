@@ -1,6 +1,6 @@
 import { Rol } from "../types/Rol";
 import { clearSession } from "./localStorage";
-import { LOGIN_ROUTE, navigate } from "./navigate";
+import { BASE, LOGIN_ROUTE, navigate } from "./navigate";
 
 export type Zona = Rol | "publica" | "raiz";
 
@@ -8,7 +8,7 @@ export type Zona = Rol | "publica" | "raiz";
 export const obtenerZona = (path: string): Zona => {
   if (path.includes("/admin/")) return Rol.ADMIN;
   if (path.includes("/client/")) return Rol.CLIENT;
-  if (path === "/" || path.endsWith("/index.html")) return "raiz";
+  if (path === BASE || path.endsWith("/index.html")) return "raiz";
   return "publica";
 };
 

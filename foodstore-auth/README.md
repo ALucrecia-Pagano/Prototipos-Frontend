@@ -3,6 +3,9 @@
 Sistema de registro, login y control de acceso por roles desarrollado con Vite, TypeScript y `localStorage`, sin frameworks de UI.
 Incluye protección centralizada de rutas y una interfaz oscura con portadas fotográficas en las pantallas de autenticación.
 
+**Ver online:** https://alucrecia-pagano.github.io/Prototipos-Frontend/foodstore-demo/
+Código fuente en `foodstore-auth/`; la versión publicada se genera con `npm run build` dentro de esa carpeta.
+
 ## Cómo ejecutarlo
 
 ```bash

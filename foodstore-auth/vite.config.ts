@@ -1,8 +1,11 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/Prototipos-Frontend/foodstore-demo/" : "/",
   build: {
+    outDir: "../foodstore-demo",
+    emptyOutDir: true,
     rollupOptions: {
       input: {
         //d:aplicaion/dist/
@@ -14,5 +17,4 @@ export default defineConfig({
       },
     },
   },
-  base: "./",
-});
+}));

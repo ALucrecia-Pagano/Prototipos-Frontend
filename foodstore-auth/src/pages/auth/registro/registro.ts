@@ -5,7 +5,7 @@ import {
   getUsers,
   saveUsers,
 } from "../../../utils/localStorage";
-import { navigate } from "../../../utils/navigate";
+import { LOGIN_ROUTE, navigate } from "../../../utils/navigate";
 
 type TipoMensaje = "error" | "exito";
 
@@ -83,7 +83,7 @@ if (form) {
     form.reset();
 
     setTimeout(() => {
-      navigate("/src/pages/auth/login/login.html");
+      navigate(LOGIN_ROUTE);
     }, 1500);
   });
 }
