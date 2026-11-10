@@ -11,5 +11,5 @@ Prototipo visual de una librería online con HTML, CSS y JavaScript nativos: cat
 ### [Food Store — Autenticación](foodstore-auth/)
 Registro, login y protección de rutas por rol con Vite, TypeScript y localStorage. Interfaz oscura con portadas fotográficas.
 
-**Ver online:** https://amandapagano.me/Prototipos-Frontend/foodstore-demo/
+**Ver online:** https://alucrecia-pagano.github.io/Prototipos-Frontend/foodstore-demo/
 Código fuente en `foodstore-auth/`; la versión publicada se genera con `npm run build` dentro de esa carpeta.
