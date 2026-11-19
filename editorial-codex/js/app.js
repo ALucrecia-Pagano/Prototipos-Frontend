@@ -228,9 +228,7 @@ function tarjeta(libro, recomendado = false) {
   const tarjeta = elemento('a', 'libro' + (recomendado ? ' libro--recomendado' : ''));
   tarjeta.href = '#libro-' + libro.id;
   tarjeta.setAttribute('aria-label', 'Ver ' + libro.titulo + ', de ' + libro.autor + ', ' + precio(libro.precio));
-  const portada = elemento('span', 'libro__portada');
-  portada.append(tapa(libro, 'libro__tapa'));
-  tarjeta.append(portada);
+  tarjeta.append(tapa(libro, 'libro__tapa'));
   if (!recomendado) tarjeta.append(elemento('p', 'libro__genero', libro.genero));
   tarjeta.append(elemento('h3', 'libro__titulo', libro.titulo), elemento('p', 'libro__autor', libro.autor));
   const pie = elemento('div', 'libro__pie');
