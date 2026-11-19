@@ -208,8 +208,8 @@ body::after{z-index:-2;background:radial-gradient(ellipse at 12% 35%,#7541c752,t
 .libro:is(:hover,:focus-visible) .libro__portada::after{transform:translateX(120%);transition:transform .7s ease}
 .libro--recomendado .libro__portada{box-shadow:0 6px 12px #0002}
 
-/* Tema claro dentro del panel: acuarela lila y bloques destacados en violeta. */
-:root[data-tema="claro"] .aplicacion{background:linear-gradient(#faf6ffd9,#faf6fff2),radial-gradient(ellipse at 0% 0%,#9c7fcb,transparent 55%),radial-gradient(ellipse at 10% 75%,#b79fe0aa,transparent 50%),radial-gradient(ellipse at 100% 100%,#f7f1fe,transparent 60%),linear-gradient(160deg,#a990d6,#d3c2ef 50%,#efe6fa)}
+/* Tema claro dentro del panel: nube lila pastel y bloques destacados en violeta. */
+:root[data-tema="claro"] .aplicacion{background:linear-gradient(#faf6ffbf,#faf6ffe8),radial-gradient(ellipse 65% 55% at 5% 0%,#c9b3e8b3,transparent 72%),radial-gradient(ellipse 55% 45% at 80% 12%,#d8c8f0a8,transparent 75%),radial-gradient(ellipse 60% 50% at 18% 82%,#d3c0ec9e,transparent 78%),radial-gradient(ellipse 70% 60% at 100% 100%,#f9f4ff,transparent 75%),linear-gradient(160deg,#e2d4f5,#eee5fa 50%,#f7f1fe)}
 :root[data-tema="claro"] .banner{background:linear-gradient(90deg,#5b3a9ef0 4%,#7a58c2d9 65%,#9b7fd0aa),url('../img/portada-2.jpg') center 40%/cover;border-color:#c9b5ee}
 :root[data-tema="claro"] .descubrir{background:linear-gradient(110deg,#5a3aa6,#6d4dbb 56%,#7d5fc4);border-color:#c9b5ee}
 :root[data-tema="claro"] .aplicacion{border-color:#cbb8ec}
@@ -226,3 +226,18 @@ body::after{z-index:-2;background:radial-gradient(ellipse at 12% 35%,#7541c752,t
 /* Contraste de textos secundarios sobre los degradados del tema claro. */
 :root[data-tema="claro"] .banner__texto{color:#fff}
 :root[data-tema="claro"] .descubrir p{color:#fff}
+
+/* Botones del tema claro: violeta Editorial Codex bien diferenciado del panel. */
+:root[data-tema="claro"] .boton{border-color:#4b2a8a80;background:linear-gradient(110deg,#5b2fa8,#6d3fc0);box-shadow:0 6px 16px #4b2a8a3d}
+:root[data-tema="claro"] .boton:hover{box-shadow:0 8px 22px #4b2a8a59}
+:root[data-tema="claro"] .boton--secundario{background:#fff;color:#5b2fa8;border-color:#8f6cc8;box-shadow:0 2px 8px #4b2a8a24}
+:root[data-tema="claro"] .boton-icono{background:#fff;border-color:#8f6cc8;color:#5b2fa8}
+:root[data-tema="claro"] .boton-icono:hover{color:#4b2a8a;border-color:#8f6cc8}
+:root[data-tema="claro"] .filtros__chip{background:#fff;border-color:#8f6cc8;color:#4b3d6b}
+:root[data-tema="claro"] .filtros__chip:hover{border-color:#8f6cc8;color:#4b2a8a}
+:root[data-tema="claro"] .filtros__chip--activo{background:linear-gradient(110deg,#5b2fa8,#6d3fc0);color:#fff;border-color:#4b2a8a80}
+:root[data-tema="claro"] .filtros__chip--activo:hover{color:#fff;border-color:#4b2a8a80}
+:root[data-tema="claro"] .genero{background:#fff;border-color:#8f6cc8;box-shadow:0 2px 10px #4b2a8a12}
+:root[data-tema="claro"] .genero:hover{border-color:#7446c4;box-shadow:0 8px 20px #4b2a8a26}
+:root[data-tema="claro"] .descubrir .boton{background:#fff;color:#5b2fa8;border-color:#fff;box-shadow:0 4px 14px #2b135e44}
+:root[data-tema="claro"] .banner .boton{background:#fff;color:#5b2fa8;border-color:#fff;box-shadow:0 4px 14px #2b135e44}
