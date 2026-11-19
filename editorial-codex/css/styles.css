@@ -1,6 +1,6 @@
 ﻿@charset "UTF-8";
 :root{color-scheme:dark;--fondo:#080d17;--panel:#101722;--tarjeta:#151e2c;--borde:#253044;--texto:#f2f4fc;--suave:#a9b5ca;--acento:#b6a6ff;--campo:#0d1420;--sombra:0 24px 70px #0005;--degrade:linear-gradient(110deg,#6845ee,#3268ed 68%,#087bab)}
-:root[data-tema="claro"] .aplicacion{color-scheme:light;--fondo:#efe6fa;--panel:#faf6ff;--tarjeta:#f3ecfc;--borde:#dccdf0;--texto:#2b2142;--suave:#65597e;--acento:#7446c4;--campo:#f1e9fb;--sombra:0 24px 70px #5b3d9a26;--degrade:linear-gradient(110deg,#6a3fbb,#7c52cc)}
+:root[data-tema="claro"] .aplicacion{color-scheme:light;--fondo:#efe6fa;--panel:#f3ecfb;--tarjeta:#ffffff;--borde:#a890cd;--texto:#241a38;--suave:#5b4a76;--acento:#5b2fa8;--campo:#eae0f8;--sombra:0 18px 44px #3b246b2e;--degrade:linear-gradient(110deg,#5b2fa8,#6d3fc0)}
 *{box-sizing:border-box}body{margin:0;background:var(--fondo);color:var(--texto);font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:1.5}button,input{font:inherit}button,a{touch-action:manipulation}a{color:inherit;text-decoration:none}button{cursor:pointer;color:inherit}svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}img{display:block;max-width:100%}h1,h2,h3,p{margin:0}button:focus-visible,a:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--acento);outline-offset:4px}h1[tabindex]:focus{outline:none}h1[tabindex]:focus-visible{outline:2px solid var(--acento);outline-offset:6px}[hidden]{display:none!important}.iconos{position:absolute;width:0;height:0;overflow:hidden}.solo-lectores{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}.salto{position:fixed;top:12px;left:12px;padding:12px;background:var(--panel);z-index:100;transform:translateY(-160%)}.salto:focus{transform:none}
 .marca{text-align:center;padding:29px 20px 27px}.marca__enlace{display:inline-flex;align-items:center;gap:13px;font-size:30px;font-weight:650;letter-spacing:-1.2px}.marca__enlace strong{color:var(--acento)}.marca__icono{width:39px;height:39px;color:#9576ff;filter:drop-shadow(0 0 8px #7956e755)}.marca__lema{color:var(--suave);font-size:14px;margin-top:4px;letter-spacing:.35px}.aplicacion{max-width:1400px;width:calc(100% - 64px);min-height:760px;margin:0 auto 32px;display:grid;grid-template-columns:226px minmax(0,1fr);border:1px solid var(--borde);border-radius:16px;background:var(--panel);box-shadow:var(--sombra);position:relative}
 .lateral{border-right:1px solid var(--borde);display:flex;flex-direction:column;padding:28px 17px 20px;position:relative;min-width:0;background:var(--campo);border-radius:16px 0 0 16px}.lateral__cabecera{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}.lateral__marca{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;white-space:nowrap}.lateral__marca svg{color:#a58aff;width:27px;height:27px}.lateral__marca strong{color:var(--acento)}.lateral__etiqueta{font-size:14px;letter-spacing:1.8px;color:var(--suave);padding:0 13px;margin-bottom:10px}.navegacion{display:grid;gap:7px}.navegacion__enlace{display:flex;align-items:center;gap:12px;padding:13px 12px;border:1px solid transparent;border-radius:8px;color:var(--suave);font-size:14px;position:relative;white-space:nowrap}.navegacion__enlace:hover{background:var(--tarjeta);color:var(--texto)}.navegacion__enlace--activo{background:#8061f022;color:var(--acento);border-color:#8c6aff30}.navegacion__enlace--activo svg{filter:drop-shadow(0 0 5px #8b6bff55)}.navegacion__tooltip{display:none}.lateral__invitacion{margin-top:auto;padding:18px 14px;border:1px solid #9c79ff33;border-radius:10px;background:linear-gradient(145deg,#51309444,#174e8530)}.lateral__invitacion>svg{color:var(--acento);margin-bottom:8px}.lateral__invitacion h2{font-size:14px;font-weight:600}.lateral__invitacion p{font-size:14px;color:var(--suave);margin:6px 0 16px}.usuario{position:relative;margin-top:23px;padding-top:18px;border-top:1px solid var(--borde)}.usuario__boton{display:flex;align-items:center;gap:9px;width:100%;background:none;border:0;padding:0;text-align:left}.usuario__avatar{width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7f5fce,#2e6085);color:white;font-size:14px;flex-shrink:0;border:2px solid #ab9cdb66}.usuario__datos{display:grid;flex:1;min-width:0}.usuario__datos strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.usuario__datos>span{font-size:14px;color:var(--suave)}.usuario__menu{position:absolute;bottom:calc(100% + 8px);left:0;width:185px;background:var(--tarjeta);padding:6px;border:1px solid var(--borde);box-shadow:var(--sombra);border-radius:9px;z-index:15}.usuario__menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px;border-radius:5px}.usuario__menu button:hover{background:var(--campo)}.lateral__colapsar{position:absolute;right:-12px;top:29px;width:24px;height:24px;border:1px solid var(--borde);background:var(--tarjeta);border-radius:50%;display:grid;place-items:center;z-index:3}.lateral__colapsar svg{width:13px;height:13px;transform:rotate(180deg)}.lateral__cerrar,.barra__hamburguesa{display:none!important}
@@ -208,14 +208,32 @@ body::after{z-index:-2;background:radial-gradient(ellipse at 12% 35%,#7541c752,t
 .libro:is(:hover,:focus-visible) .libro__portada::after{transform:translateX(120%);transition:transform .7s ease}
 .libro--recomendado .libro__portada{box-shadow:0 6px 12px #0002}
 
-/* Tema claro dentro del panel: nube lila pastel y bloques destacados en violeta. */
-:root[data-tema="claro"] .aplicacion{background:linear-gradient(#faf6ffbf,#faf6ffe8),radial-gradient(ellipse 65% 55% at 5% 0%,#c9b3e8b3,transparent 72%),radial-gradient(ellipse 55% 45% at 80% 12%,#d8c8f0a8,transparent 75%),radial-gradient(ellipse 60% 50% at 18% 82%,#d3c0ec9e,transparent 78%),radial-gradient(ellipse 70% 60% at 100% 100%,#f9f4ff,transparent 75%),linear-gradient(160deg,#e2d4f5,#eee5fa 50%,#f7f1fe)}
-:root[data-tema="claro"] .banner{background:linear-gradient(90deg,#5b3a9ef0 4%,#7a58c2d9 65%,#9b7fd0aa),url('../img/portada-2.jpg') center 40%/cover;border-color:#c9b5ee}
-:root[data-tema="claro"] .descubrir{background:linear-gradient(110deg,#5a3aa6,#6d4dbb 56%,#7d5fc4);border-color:#c9b5ee}
-:root[data-tema="claro"] .aplicacion{border-color:#cbb8ec}
+/* Tema claro dentro del panel: lavanda uniforme y bloques destacados en violeta. */
+:root[data-tema="claro"] .banner{background:linear-gradient(90deg,#5b2fa8f2,#6d3fc0eb 65%,#7446c4dd),url('../img/portada-2.jpg') center 40%/cover;border-color:var(--borde)}
+:root[data-tema="claro"] .descubrir{background:linear-gradient(110deg,#5b2fa8,#6d3fc0 56%,#7446c4);border-color:var(--borde)}
+:root[data-tema="claro"] .aplicacion{border-color:var(--borde);box-shadow:0 18px 44px #3b246b2e}
 
-/* Ajustes lila para detalles que aún usaban azul en el tema claro. */
-:root[data-tema="claro"] .aplicacion{box-shadow:0 24px 70px #5b3d9a26,0 0 32px #7950ce20}
+/* Contraste de textos y controles sobre los bloques violetas del tema claro. */
+:root[data-tema="claro"] .banner__texto,
+:root[data-tema="claro"] .descubrir p{color:#fff}
+:root[data-tema="claro"] .banner .boton,
+:root[data-tema="claro"] .descubrir .boton{background:#fff;color:#5b2fa8;border-color:#fff;box-shadow:0 4px 14px #2b135e44}
+:root[data-tema="claro"] .banner .boton:focus-visible,
+:root[data-tema="claro"] .descubrir .boton:focus-visible{outline-color:#fff}
+
+/* Navegación y controles del tema claro con bordes y estados definidos. */
+:root[data-tema="claro"] .navegacion__enlace--activo{background:#e2d3f7;border-color:var(--borde);color:#5b2fa8}
+:root[data-tema="claro"] .lateral__colapsar{width:30px;height:30px;right:-15px;top:26px;background:#fff;border-width:2px;border-color:#8f6cc8;box-shadow:0 2px 8px #3b246b26}
+:root[data-tema="claro"] .lateral__colapsar:hover{border-color:#5b2fa8;color:#5b2fa8}
+:root[data-tema="claro"] .lateral__colapsar svg{width:15px;height:15px}
+:root[data-tema="claro"] .barra .boton-icono{background:#fff;border-color:#8f6cc8;color:#5b2fa8;box-shadow:0 2px 8px #3b246b24}
+:root[data-tema="claro"] .barra .boton-icono:hover{background:#f3ecfb;border-color:#5b2fa8}
+:root[data-tema="claro"] .barra .boton-icono:active{background:#e2d3f7}
+:root[data-tema="claro"] .filtros__chip--activo{background:linear-gradient(110deg,#5b2fa8,#6d3fc0);border-color:#5b2fa8;color:#fff}
+:root[data-tema="claro"] .boton:not(.boton--secundario):active{background:linear-gradient(110deg,#4b2a8a,#5b2fa8);color:#fff;box-shadow:0 2px 8px #3b246b33}
+:root[data-tema="claro"] .boton--secundario:active{background:#e2d3f7;box-shadow:0 1px 4px #3b246b24}
+
+/* Acentos literarios que antes usaban azul en el tema claro. */
 :root[data-tema="claro"] .velo{background:#3b2a5ea8}
 :root[data-tema="claro"] .usuario__avatar{background:linear-gradient(135deg,#7f5fce,#7446c4)}
 :root[data-tema="claro"] .escritor__avatar{background:linear-gradient(135deg,#7650c7,#8a5bd6)}
@@ -223,21 +241,5 @@ body::after{z-index:-2;background:radial-gradient(ellipse at 12% 35%,#7541c752,t
 :root[data-tema="claro"] .escritor:nth-child(3n) .escritor__avatar{background:linear-gradient(135deg,#803c8d,#9a4fb0)}
 :root[data-tema="claro"] .resumen__barra{background:linear-gradient(90deg,#8055fa,#a06bdf)}
 
-/* Contraste de textos secundarios sobre los degradados del tema claro. */
-:root[data-tema="claro"] .banner__texto{color:#fff}
-:root[data-tema="claro"] .descubrir p{color:#fff}
-
-/* Botones del tema claro: violeta Editorial Codex bien diferenciado del panel. */
-:root[data-tema="claro"] .boton{border-color:#4b2a8a80;background:linear-gradient(110deg,#5b2fa8,#6d3fc0);box-shadow:0 6px 16px #4b2a8a3d}
-:root[data-tema="claro"] .boton:hover{box-shadow:0 8px 22px #4b2a8a59}
-:root[data-tema="claro"] .boton--secundario{background:#fff;color:#5b2fa8;border-color:#8f6cc8;box-shadow:0 2px 8px #4b2a8a24}
-:root[data-tema="claro"] .boton-icono{background:#fff;border-color:#8f6cc8;color:#5b2fa8}
-:root[data-tema="claro"] .boton-icono:hover{color:#4b2a8a;border-color:#8f6cc8}
-:root[data-tema="claro"] .filtros__chip{background:#fff;border-color:#8f6cc8;color:#4b3d6b}
-:root[data-tema="claro"] .filtros__chip:hover{border-color:#8f6cc8;color:#4b2a8a}
-:root[data-tema="claro"] .filtros__chip--activo{background:linear-gradient(110deg,#5b2fa8,#6d3fc0);color:#fff;border-color:#4b2a8a80}
-:root[data-tema="claro"] .filtros__chip--activo:hover{color:#fff;border-color:#4b2a8a80}
-:root[data-tema="claro"] .genero{background:#fff;border-color:#8f6cc8;box-shadow:0 2px 10px #4b2a8a12}
-:root[data-tema="claro"] .genero:hover{border-color:#7446c4;box-shadow:0 8px 20px #4b2a8a26}
-:root[data-tema="claro"] .descubrir .boton{background:#fff;color:#5b2fa8;border-color:#fff;box-shadow:0 4px 14px #2b135e44}
-:root[data-tema="claro"] .banner .boton{background:#fff;color:#5b2fa8;border-color:#fff;box-shadow:0 4px 14px #2b135e44}
+/* Rótulo exterior reforzado sobre la portada nocturna. */
+.marca .marca__editorial{color:#fff6e8;text-shadow:0 2px 10px #000000cc,0 0 20px #00000099}
