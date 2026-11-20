@@ -42,8 +42,20 @@ let rutaAnterior = '';
 const documentoNavegacion = location.href.split('#')[0];
 let entradaRenderizada = '';
 let temporizadorToast;
+let regionToast = null;
 const movimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)');
 const limpiezasCarruseles = [];
+// Carrito de la compra simulada: solo ids y cantidades; precios y textos salen del catálogo.
+const CANTIDAD_MAXIMA = 10;
+const ENVIO_GRATIS_DESDE = 30000;
+const COSTO_ENVIO = 2500;
+const formasEntrega = { envio: 'Envío a domicilio', retiro: 'Retiro en el local' };
+const formasPago = { tarjeta: 'Tarjeta de crédito o débito', transferencia: 'Transferencia bancaria', efectivo: 'Efectivo al retirar' };
+let carrito = [];
+let ultimoPedido = null;
+const dialogoLibro = $('#dialogo-libro');
+const dialogoCarrito = $('#dialogo-carrito');
+const origenesDialogo = new WeakMap();
 
 function estadoInterno() {
   const estado = history.state?.codexNavegacion;
@@ -55,6 +67,7 @@ function marcarEntrada(indice) {
   return estado;
 }
 function navegar(destino, opciones = {}) {
+  cerrarDialogos();
   if ((location.hash || '#inicio') === destino) {
     if (opciones.foco !== false) contenido.querySelector('h1')?.focus();
     return;
@@ -88,6 +101,12 @@ function rutaNavegacion(pasos) {
       const actual = elemento('span', 'ruta-navegacion__actual', texto);
       actual.setAttribute('aria-current', 'page');
       item.append(actual);
+    } else if (typeof destino === 'function') {
+      // Pasos que no son una ruta (por ejemplo, el carrito) abren su panel.
+      const boton = elemento('button', 'ruta-navegacion__enlace ruta-navegacion__boton', texto);
+      boton.type = 'button';
+      boton.addEventListener('click', () => destino(boton));
+      item.append(boton);
     } else item.append(enlace(texto, destino, 'ruta-navegacion__enlace'));
     lista.append(item);
   });
@@ -217,7 +236,10 @@ function guardarPreferencia(clave, valor) {
 }
 function notificar(texto, tipo = 'exito') {
   clearTimeout(temporizadorToast);
-  const region = $('#notificaciones');
+  regionToast?.replaceChildren();
+  // Con un diálogo modal abierto, lo de afuera queda inerte: se avisa dentro del diálogo.
+  const region = document.querySelector('dialog[open] [data-avisos]') || $('#notificaciones');
+  regionToast = region;
   region.replaceChildren();
   const toast = elemento('div', 'toast' + (tipo === 'error' ? ' toast--error' : ''));
   toast.append(elemento('strong', '', tipo === 'error' ? 'Revisá los datos' : '¡Listo!'), elemento('p', '', texto));
@@ -228,7 +250,16 @@ function tarjeta(libro, recomendado = false) {
   const tarjeta = elemento('a', 'libro' + (recomendado ? ' libro--recomendado' : ''));
   tarjeta.href = '#libro-' + libro.id;
   tarjeta.setAttribute('aria-label', 'Ver ' + libro.titulo + ', de ' + libro.autor + ', ' + precio(libro.precio));
-  tarjeta.append(tapa(libro, 'libro__tapa'));
+  tarjeta.setAttribute('aria-haspopup', 'dialog');
+  // Click simple: ficha emergente. Ctrl/Cmd/Shift/Alt o botón del medio conservan el enlace a la página completa.
+  tarjeta.addEventListener('click', evento => {
+    if (evento.button !== 0 || evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey) return;
+    evento.preventDefault();
+    abrirFichaLibro(libro, tarjeta);
+  });
+  const portada = elemento('span', 'libro__portada');
+  portada.append(tapa(libro, 'libro__tapa'));
+  tarjeta.append(portada);
   if (!recomendado) tarjeta.append(elemento('p', 'libro__genero', libro.genero));
   tarjeta.append(elemento('h3', 'libro__titulo', libro.titulo), elemento('p', 'libro__autor', libro.autor));
   const pie = elemento('div', 'libro__pie');
@@ -434,7 +465,8 @@ function vistaDetalle(libro) {
   const datos = elemento('div', 'detalle__datos');
   const agregar = elemento('button', 'boton', 'Agregar al carrito');
   agregar.append(icono('bolsa'));
-  agregar.addEventListener('click', () => notificar('“' + libro.titulo + '” agregado al carrito de demostración.'));
+  agregar.type = 'button';
+  agregar.addEventListener('click', () => agregarAlCarrito(libro.id));
   datos.append(elemento('p', 'vista__etiqueta', 'Tu próxima lectura'), titulo(libro.titulo), elemento('p', 'detalle__autor', 'Por ' + libro.autor), elemento('span', 'detalle__genero', libro.genero), elemento('p', 'detalle__precio', precio(libro.precio)), elemento('p', 'detalle__descripcion', libro.descripcion), agregar, elemento('p', 'detalle__nota', 'Compra simulada · No se realizará ningún cobro'));
   cuerpo.append(tapa(libro, 'detalle__tapa', 'eager'), datos);
   vista.append(cuerpo);
@@ -461,6 +493,420 @@ function campo(formulario, id, etiqueta, tipo, autocompletar) {
     error.textContent = '';
   });
   return input;
+}
+
+// Diálogos nativos: showModal aporta foco atrapado, Esc y fondo inerte.
+function abrirDialogo(dialogo, origen) {
+  if (dialogo.open) return;
+  origenesDialogo.set(dialogo, origen);
+  dialogo.showModal();
+}
+function cerrarDialogo(dialogo, devolverFoco = true) {
+  if (!devolverFoco) origenesDialogo.delete(dialogo);
+  if (dialogo.open) dialogo.close();
+}
+function cerrarDialogos() {
+  // Al navegar, el foco lo toma el nuevo título: no se devuelve al origen.
+  [dialogoLibro, dialogoCarrito].forEach(dialogo => cerrarDialogo(dialogo, false));
+}
+function prepararDialogo(dialogo) {
+  let pulsadoEnFondo = false;
+  // Solo cierra un click que empieza y termina en el fondo (no al soltar una selección de texto).
+  dialogo.addEventListener('pointerdown', evento => { pulsadoEnFondo = evento.target === dialogo; });
+  dialogo.addEventListener('click', evento => {
+    if (evento.target === dialogo && pulsadoEnFondo) cerrarDialogo(dialogo);
+    pulsadoEnFondo = false;
+  });
+  dialogo.querySelectorAll('[data-cerrar-dialogo]').forEach(boton => boton.addEventListener('click', () => cerrarDialogo(dialogo)));
+  dialogo.addEventListener('close', () => {
+    dialogo.querySelector('[data-avisos]')?.replaceChildren();
+    const origen = origenesDialogo.get(dialogo);
+    origenesDialogo.delete(dialogo);
+    if (origen?.isConnected) origen.focus();
+  });
+}
+function abrirFichaLibro(libro, origen) {
+  const portada = elemento('span', 'libro__portada ficha__portada');
+  portada.append(tapa(libro, 'ficha__tapa', 'eager'));
+  const datos = elemento('div', 'ficha__datos');
+  const nombre = elemento('h2', 'ficha__titulo', libro.titulo);
+  nombre.id = 'ficha-titulo';
+  const agregar = elemento('button', 'boton', 'Agregar al carrito');
+  agregar.type = 'button';
+  agregar.append(icono('bolsa'));
+  agregar.addEventListener('click', () => agregarAlCarrito(libro.id));
+  const acciones = elemento('div', 'ficha__acciones');
+  acciones.append(agregar, enlace('Ver página completa', '#libro-' + libro.id, 'enlace ficha__enlace'));
+  datos.append(elemento('span', 'detalle__genero', libro.genero), nombre, elemento('p', 'ficha__autor', 'Por ' + libro.autor),
+    elemento('p', 'ficha__precio', precio(libro.precio)), elemento('p', 'ficha__descripcion', libro.descripcion), acciones,
+    elemento('p', 'detalle__nota', 'Compra simulada · No se realizará ningún cobro'));
+  const cuerpo = $('#ficha-contenido');
+  cuerpo.replaceChildren(portada, datos);
+  cuerpo.scrollTop = 0;
+  abrirDialogo(dialogoLibro, origen);
+}
+
+function libroPorId(id) {
+  return libros.find(libro => libro.id === id);
+}
+function textoLibros(cantidad) {
+  return cantidad + (cantidad === 1 ? ' libro' : ' libros');
+}
+function leerCarrito() {
+  try {
+    const datos = JSON.parse(leerPreferencia('carrito', '[]'));
+    if (!Array.isArray(datos)) return [];
+    const vistos = new Set();
+    return datos.filter(item => item && libroPorId(item.id) && !vistos.has(item.id) && vistos.add(item.id))
+      .map(item => ({ id: item.id, cantidad: Math.min(CANTIDAD_MAXIMA, Math.max(1, Math.trunc(Number(item.cantidad)) || 1)) }));
+  } catch {
+    return [];
+  }
+}
+function cantidadCarrito() {
+  return carrito.reduce((suma, item) => suma + item.cantidad, 0);
+}
+function totalCarrito() {
+  return carrito.reduce((suma, item) => suma + libroPorId(item.id).precio * item.cantidad, 0);
+}
+function agregarAlCarrito(id) {
+  const libro = libroPorId(id);
+  if (!libro) return;
+  const item = carrito.find(actual => actual.id === id);
+  if (item && item.cantidad >= CANTIDAD_MAXIMA) {
+    notificar('Podés llevar hasta ' + CANTIDAD_MAXIMA + ' ejemplares de “' + libro.titulo + '”.', 'error');
+    return;
+  }
+  if (item) item.cantidad += 1;
+  else carrito.push({ id, cantidad: 1 });
+  actualizarCarrito();
+  notificar('“' + libro.titulo + '” agregado al carrito. Ya tenés ' + textoLibros(cantidadCarrito()) + '.');
+}
+function cambiarCantidad(id, delta) {
+  const item = carrito.find(actual => actual.id === id);
+  if (!item) return;
+  const cantidad = Math.min(CANTIDAD_MAXIMA, Math.max(1, item.cantidad + delta));
+  if (cantidad === item.cantidad) return;
+  item.cantidad = cantidad;
+  actualizarCarrito();
+  notificar('Cantidad de “' + libroPorId(id).titulo + '”: ' + cantidad + '.');
+}
+function quitarDelCarrito(id) {
+  const libro = libroPorId(id);
+  carrito = carrito.filter(item => item.id !== id);
+  actualizarCarrito();
+  notificar('“' + libro.titulo + '” se quitó del carrito.');
+}
+function vaciarCarrito() {
+  carrito = [];
+  actualizarCarrito();
+  notificar('Vaciaste el carrito.');
+}
+function actualizarContador() {
+  const cantidad = cantidadCarrito();
+  const contador = $('#contador-carrito');
+  contador.textContent = cantidad > 99 ? '99+' : String(cantidad);
+  contador.hidden = cantidad === 0;
+  $('#abrir-carrito').setAttribute('aria-label', 'Abrir carrito, ' + textoLibros(cantidad));
+}
+function actualizarCarrito() {
+  guardarPreferencia('carrito', JSON.stringify(carrito));
+  actualizarContador();
+  if (dialogoCarrito.open) renderizarCarrito();
+  if ((location.hash || '#inicio').split('?')[0] === '#checkout') {
+    // Con el carrito vacío, el checkout pasa a su estado vacío; si no, solo cambia el resumen.
+    if (!carrito.length && $('#form-checkout')) renderizar({ foco: false, desplazar: false });
+    else actualizarResumenCheckout();
+  }
+}
+function abrirCarrito(origen) {
+  renderizarCarrito();
+  abrirDialogo(dialogoCarrito, origen);
+}
+function botonCarrito(texto, clase, etiqueta, foco, accion, deshabilitado = false) {
+  const boton = elemento('button', clase, texto);
+  boton.type = 'button';
+  boton.dataset.foco = foco;
+  if (etiqueta) boton.setAttribute('aria-label', etiqueta);
+  // aria-disabled en lugar de disabled: el botón conserva el foco al llegar al límite.
+  if (deshabilitado) boton.setAttribute('aria-disabled', 'true');
+  boton.addEventListener('click', () => { if (!deshabilitado) accion(); });
+  return boton;
+}
+function renderizarCarrito() {
+  const destino = $('#carrito-contenido');
+  const activo = destino.contains(document.activeElement) ? document.activeElement : null;
+  const claveFoco = activo?.dataset.foco || '';
+  const filaActiva = activo?.closest('.carrito__item');
+  const indiceFoco = filaActiva ? [...filaActiva.parentNode.children].indexOf(filaActiva) : -1;
+  destino.replaceChildren();
+  if (!carrito.length) {
+    const vacio = elemento('div', 'carrito__vacio');
+    vacio.append(icono('bolsa'), elemento('p', 'carrito__vacio-titulo', 'Tu carrito está vacío'),
+      elemento('p', '', 'Encontrá tu próxima historia en el catálogo.'), enlace('Explorar catálogo', '#catalogo', 'boton', 'flecha'));
+    destino.append(vacio);
+  } else {
+    const lista = elemento('ul', 'carrito__lista');
+    lista.setAttribute('aria-label', 'Libros en el carrito');
+    carrito.forEach(item => {
+      const libro = libroPorId(item.id);
+      const fila = elemento('li', 'carrito__item');
+      const imagen = tapa(libro, 'carrito__tapa');
+      imagen.alt = '';
+      const datos = elemento('div', 'carrito__datos');
+      datos.append(elemento('h3', 'carrito__nombre', libro.titulo), elemento('p', 'carrito__autor', libro.autor),
+        elemento('p', 'carrito__unitario', precio(libro.precio) + ' por unidad'));
+      const cantidad = elemento('div', 'cantidad');
+      cantidad.setAttribute('role', 'group');
+      cantidad.setAttribute('aria-label', 'Cantidad de ' + libro.titulo);
+      cantidad.append(
+        botonCarrito('−', 'cantidad__boton', 'Restar un ejemplar de ' + libro.titulo, 'restar:' + libro.id, () => cambiarCantidad(libro.id, -1), item.cantidad <= 1),
+        elemento('span', 'cantidad__valor', String(item.cantidad)),
+        botonCarrito('+', 'cantidad__boton', 'Sumar un ejemplar de ' + libro.titulo, 'sumar:' + libro.id, () => cambiarCantidad(libro.id, 1), item.cantidad >= CANTIDAD_MAXIMA));
+      const controles = elemento('div', 'carrito__controles');
+      controles.append(cantidad, botonCarrito('Quitar', 'carrito__quitar', 'Quitar ' + libro.titulo + ' del carrito', 'quitar:' + libro.id, () => quitarDelCarrito(libro.id)));
+      datos.append(controles, elemento('p', 'carrito__subtotal', 'Subtotal: ' + precio(libro.precio * item.cantidad)));
+      fila.append(imagen, datos);
+      lista.append(fila);
+    });
+    const pie = elemento('div', 'carrito__pie');
+    const total = elemento('p', 'carrito__total', 'Total');
+    total.append(elemento('strong', '', precio(totalCarrito())));
+    const finalizar = botonCarrito('Finalizar compra', 'boton', '', 'finalizar', () => {
+      cerrarDialogo(dialogoCarrito, false);
+      navegar('#checkout');
+    });
+    finalizar.append(icono('flecha'));
+    pie.append(total, elemento('p', 'carrito__envio', totalCarrito() >= ENVIO_GRATIS_DESDE ? 'Tu pedido tiene envío gratis.' : 'Envío gratis desde ' + precio(ENVIO_GRATIS_DESDE) + '.'),
+      finalizar, botonCarrito('Vaciar carrito', 'boton boton--secundario', '', 'vaciar', vaciarCarrito));
+    destino.append(lista, pie);
+  }
+  if (!activo) return;
+  // El foco vuelve al mismo control; si su libro se quitó, al siguiente; si no queda ninguno, al título.
+  const filas = destino.querySelectorAll('.carrito__item');
+  const siguiente = destino.querySelector('[data-foco="' + claveFoco + '"]')
+    || (indiceFoco >= 0 && filas.length ? filas[Math.min(indiceFoco, filas.length - 1)].querySelector('.carrito__quitar') : null)
+    || $('#carrito-titulo');
+  siguiente.focus();
+}
+
+function costoEnvio(subtotal, entrega) {
+  return entrega === 'retiro' || subtotal >= ENVIO_GRATIS_DESDE ? 0 : COSTO_ENVIO;
+}
+function entregaSeleccionada() {
+  return document.querySelector('input[name="compra-entrega"]:checked')?.value || 'envio';
+}
+function itemsDelCarrito() {
+  return carrito.map(item => {
+    const libro = libroPorId(item.id);
+    return { titulo: libro.titulo, autor: libro.autor, precio: libro.precio, cantidad: item.cantidad };
+  });
+}
+function resumenPedido(contenedor, items, entrega) {
+  const subtotal = items.reduce((suma, item) => suma + item.precio * item.cantidad, 0);
+  const envio = costoEnvio(subtotal, entrega);
+  const lista = elemento('ul', 'resumen-pedido__lista');
+  items.forEach(item => {
+    const fila = elemento('li', 'resumen-pedido__item');
+    const datos = elemento('span', 'resumen-pedido__libro');
+    datos.append(elemento('strong', '', item.titulo), elemento('span', '', item.autor + ' · ' + item.cantidad + (item.cantidad === 1 ? ' ejemplar' : ' ejemplares')));
+    fila.append(datos, elemento('span', 'resumen-pedido__precio', precio(item.precio * item.cantidad)));
+    lista.append(fila);
+  });
+  const totales = elemento('dl', 'resumen-pedido__totales');
+  [['Subtotal', precio(subtotal)], ['Envío', entrega === 'retiro' ? 'Sin costo · retiro' : envio ? precio(envio) : 'Gratis'], ['Total', precio(subtotal + envio)]]
+    .forEach(([termino, valor], indice, filas) => {
+      const final = indice === filas.length - 1 ? 'resumen-pedido__total' : '';
+      totales.append(elemento('dt', final, termino), elemento('dd', final, valor));
+    });
+  contenedor.replaceChildren(elemento('h2', 'seccion__titulo', 'Tu pedido'), lista, totales);
+  if (entrega === 'envio' && envio) contenedor.append(elemento('p', 'formulario__nota', 'Te faltan ' + precio(ENVIO_GRATIS_DESDE - subtotal) + ' para el envío gratis.'));
+}
+function actualizarResumenCheckout() {
+  const resumen = $('#checkout-resumen');
+  if (resumen && carrito.length) resumenPedido(resumen, itemsDelCarrito(), entregaSeleccionada());
+}
+function grupoOpciones(contenedor, nombre, leyenda, opciones, marcada) {
+  const grupo = elemento('fieldset', 'checkout__grupo');
+  grupo.append(elemento('legend', '', leyenda));
+  const lista = elemento('div', 'checkout__opciones');
+  const error = elemento('p', 'formulario__error');
+  error.id = nombre + '-error';
+  opciones.forEach(([valor, texto, ayuda]) => {
+    const opcion = elemento('label', 'checkout__opcion');
+    const radio = elemento('input');
+    radio.type = 'radio';
+    radio.name = nombre;
+    radio.value = valor;
+    radio.id = nombre + '-' + valor;
+    radio.checked = valor === marcada;
+    radio.setAttribute('aria-describedby', error.id);
+    radio.addEventListener('change', () => {
+      lista.querySelectorAll('input').forEach(otro => otro.removeAttribute('aria-invalid'));
+      error.textContent = '';
+    });
+    const textos = elemento('span', 'checkout__opcion-texto');
+    textos.append(elemento('strong', '', texto));
+    if (ayuda) {
+      // La ayuda se lee como descripción (no se repite dentro del nombre de la opción).
+      const nota = elemento('small', '', ayuda);
+      nota.id = radio.id + '-ayuda';
+      nota.setAttribute('aria-hidden', 'true');
+      radio.setAttribute('aria-describedby', nota.id + ' ' + error.id);
+      textos.append(nota);
+    }
+    opcion.append(radio, textos);
+    lista.append(opcion);
+  });
+  grupo.append(lista, error);
+  contenedor.append(grupo);
+  return grupo;
+}
+function estadoCarritoVacio() {
+  const vacio = elemento('div', 'catalogo__vacio');
+  vacio.append(elemento('h2', 'seccion__titulo', 'Tu carrito está vacío'), elemento('p', '', 'Sumá algún libro desde el catálogo para finalizar una compra.'),
+    enlace('Explorar catálogo', '#catalogo', 'boton', 'flecha'));
+  return vacio;
+}
+function vistaCheckout() {
+  const vista = elemento('section', 'vista checkout');
+  vista.append(encabezado('Finalizar compra', 'Revisá tu pedido y completá los datos para recibirlo.', 'Último paso'));
+  if (!carrito.length) {
+    vista.append(estadoCarritoVacio());
+    contenido.append(vista);
+    return;
+  }
+  const cuerpo = elemento('div', 'checkout__cuerpo');
+  const formulario = elemento('form', 'formulario checkout__formulario');
+  formulario.id = 'form-checkout';
+  formulario.noValidate = true;
+  formulario.setAttribute('aria-label', 'Datos de la compra');
+  const datos = elemento('fieldset', 'checkout__grupo');
+  datos.append(elemento('legend', '', 'Tus datos'));
+  const nombre = campo(datos, 'compra-nombre', 'Nombre completo', 'text', 'name');
+  const email = campo(datos, 'compra-email', 'Correo electrónico', 'email', 'email');
+  campo(datos, 'compra-telefono', 'Teléfono', 'tel', 'tel');
+  if (usuario) { nombre.value = usuario.nombre; email.value = usuario.email; }
+  formulario.append(datos);
+  const entrega = grupoOpciones(formulario, 'compra-entrega', 'Forma de entrega', [
+    ['envio', formasEntrega.envio, 'Gratis desde ' + precio(ENVIO_GRATIS_DESDE) + '; si no, ' + precio(COSTO_ENVIO) + '.'],
+    ['retiro', formasEntrega.retiro, 'Sin costo. Te avisamos cuando esté listo.']
+  ], 'envio');
+  const envio = elemento('div', 'checkout__envio');
+  envio.id = 'checkout-envio';
+  campo(envio, 'compra-direccion', 'Dirección (calle y número)', 'text', 'street-address');
+  const fila = elemento('div', 'checkout__fila');
+  campo(fila, 'compra-ciudad', 'Ciudad', 'text', 'address-level2');
+  campo(fila, 'compra-cp', 'Código postal', 'text', 'postal-code');
+  envio.append(fila);
+  formulario.append(envio);
+  grupoOpciones(formulario, 'compra-pago', 'Forma de pago', [
+    ['tarjeta', formasPago.tarjeta, 'Pago simulado: no te vamos a pedir datos de la tarjeta.'],
+    ['transferencia', formasPago.transferencia],
+    ['efectivo', formasPago.efectivo, 'Disponible solo con retiro en el local.']
+  ]);
+  // El efectivo solo se ofrece con retiro; con envío se deshabilita y, si estaba elegido, pasa a tarjeta.
+  const efectivo = formulario.querySelector('#compra-pago-efectivo');
+  function sincronizarPago() {
+    const conEnvio = entregaSeleccionada() === 'envio';
+    if (conEnvio && efectivo.checked) {
+      const tarjeta = formulario.querySelector('#compra-pago-tarjeta');
+      tarjeta.checked = true;
+      tarjeta.dispatchEvent(new Event('change'));
+      notificar('El efectivo solo está disponible con retiro en el local. Cambiamos la forma de pago a ' + formasPago.tarjeta.toLowerCase() + '.');
+    }
+    efectivo.disabled = conEnvio;
+  }
+  sincronizarPago();
+  entrega.addEventListener('change', () => {
+    envio.hidden = entregaSeleccionada() === 'retiro';
+    sincronizarPago();
+    actualizarResumenCheckout();
+  });
+  const enviar = elemento('button', 'boton', 'Confirmar pedido');
+  enviar.type = 'submit';
+  enviar.append(icono('flecha'));
+  formulario.append(elemento('p', 'formulario__nota', 'Compra simulada · No se realizará ningún cobro'), enviar);
+  formulario.addEventListener('submit', validarCompra);
+  const resumen = elemento('aside', 'resumen-pedido');
+  resumen.id = 'checkout-resumen';
+  resumen.setAttribute('aria-label', 'Resumen del pedido');
+  cuerpo.append(formulario, resumen);
+  vista.append(cuerpo);
+  contenido.append(vista);
+  actualizarResumenCheckout();
+}
+function validarCompra(evento) {
+  evento.preventDefault();
+  const formulario = evento.currentTarget;
+  const campos = formulario.elements;
+  const entrega = entregaSeleccionada();
+  const pago = formulario.querySelector('input[name="compra-pago"]:checked')?.value || '';
+  let primero = null;
+  function error(input, mensaje) {
+    input.setAttribute('aria-invalid', mensaje ? 'true' : 'false');
+    $('#' + input.id + '-error').textContent = mensaje;
+    if (mensaje && !primero) primero = input;
+  }
+  const nombre = campos['compra-nombre'];
+  const email = campos['compra-email'];
+  const telefono = campos['compra-telefono'];
+  const direccion = campos['compra-direccion'];
+  const ciudad = campos['compra-ciudad'];
+  const cp = campos['compra-cp'];
+  [nombre, email, telefono, direccion, ciudad, cp].forEach(input => { input.value = input.value.trim(); });
+  error(nombre, nombre.value.split(/\s+/).length < 2 || nombre.value.length < 3 ? 'Ingresá tu nombre y apellido.' : '');
+  error(email, !email.value || !email.validity.valid || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value) ? 'Ingresá un correo válido, por ejemplo lector@correo.com.' : '');
+  const digitos = telefono.value.replace(/\D/g, '').length;
+  error(telefono, !/^\+?[\d\s()-]+$/.test(telefono.value) || digitos < 8 || digitos > 15 ? 'Ingresá un teléfono válido, por ejemplo 11 2345-6789.' : '');
+  if (entrega === 'envio') {
+    error(direccion, direccion.value.length < 5 || !/\d/.test(direccion.value) ? 'Ingresá la calle y el número.' : '');
+    error(ciudad, ciudad.value.length < 2 ? 'Ingresá tu ciudad.' : '');
+    error(cp, !/^(\d{4}|[A-Za-z]\d{4}[A-Za-z]{3})$/.test(cp.value) ? 'Ingresá un código postal válido, por ejemplo 1414 o C1414ABC.' : '');
+  } else [direccion, ciudad, cp].forEach(input => error(input, ''));
+  const mensajePago = !pago ? 'Elegí una forma de pago.' : '';
+  const radiosPago = [...formulario.querySelectorAll('input[name="compra-pago"]')];
+  radiosPago.forEach(radio => { if (mensajePago) radio.setAttribute('aria-invalid', 'true'); else radio.removeAttribute('aria-invalid'); });
+  $('#compra-pago-error').textContent = mensajePago;
+  if (mensajePago && !primero) primero = radiosPago.find(radio => radio.checked) || radiosPago[0];
+  if (primero) {
+    primero.focus();
+    notificar('Hay campos por corregir. Revisá los mensajes del formulario.', 'error');
+    return;
+  }
+  const ahora = new Date();
+  const fecha = String(ahora.getFullYear()).slice(2) + String(ahora.getMonth() + 1).padStart(2, '0') + String(ahora.getDate()).padStart(2, '0');
+  const numero = 'EC-' + fecha + '-' + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+  ultimoPedido = {
+    numero, entrega, pago, items: itemsDelCarrito(),
+    datos: { nombre: nombre.value.replace(/\s+/g, ' '), email: email.value, telefono: telefono.value, direccion: direccion.value, ciudad: ciudad.value, cp: cp.value.toUpperCase() }
+  };
+  // Primero se muestra la confirmación; después se vacía el carrito (así el checkout no vuelve a dibujarse vacío).
+  navegar('#pedido-confirmado');
+  carrito = [];
+  actualizarCarrito();
+  notificar('Pedido ' + numero + ' confirmado. ¡Gracias por tu compra!');
+}
+function vistaConfirmacion() {
+  const pedido = ultimoPedido;
+  const vista = elemento('section', 'vista confirmacion');
+  vista.append(encabezado('¡Pedido confirmado!', 'Gracias, ' + pedido.datos.nombre.split(' ')[0] + '. Este es el resumen de tu compra de demostración.', 'Compra simulada'));
+  const numero = elemento('p', 'confirmacion__numero', 'Número de pedido');
+  numero.append(elemento('strong', '', pedido.numero));
+  const cuerpo = elemento('div', 'checkout__cuerpo');
+  const entrega = elemento('section', 'formulario confirmacion__entrega');
+  entrega.append(elemento('h2', 'seccion__titulo', 'Datos de entrega'));
+  const lista = elemento('dl', 'confirmacion__datos');
+  [['Nombre', pedido.datos.nombre], ['Correo', pedido.datos.email], ['Teléfono', pedido.datos.telefono],
+    ['Entrega', pedido.entrega === 'envio' ? formasEntrega.envio + ': ' + pedido.datos.direccion + ', ' + pedido.datos.ciudad + ' (CP ' + pedido.datos.cp + ')' : formasEntrega.retiro + ' · Editorial Codex'],
+    ['Pago', formasPago[pedido.pago]]].forEach(([termino, valor]) => lista.append(elemento('dt', '', termino), elemento('dd', '', valor)));
+  entrega.append(lista, elemento('p', 'formulario__nota', 'Compra simulada · No se realizó ningún cobro.'), enlace('Seguir explorando', '#catalogo', 'boton', 'flecha'));
+  const resumen = elemento('aside', 'resumen-pedido');
+  resumen.setAttribute('aria-label', 'Resumen del pedido ' + pedido.numero);
+  resumenPedido(resumen, pedido.items, pedido.entrega);
+  cuerpo.append(entrega, resumen);
+  vista.append(numero, cuerpo);
+  contenido.append(vista);
 }
 function vistaAcceso() {
   const vista = elemento('section', 'vista acceso');
@@ -571,6 +1017,8 @@ function cambiarMenu(abrir, devolverFoco = true) {
   }
 }
 function renderizar(opciones = {}) {
+  // La confirmación solo existe en memoria: al recargarla sin pedido se vuelve al inicio.
+  if (location.hash.split('?')[0] === '#pedido-confirmado' && !ultimoPedido) history.replaceState(history.state, '', '#inicio');
   const hashActual = location.hash || '#inicio';
   const [ruta, consultaRuta = ''] = hashActual.split('?');
   if (ruta === '#contenido') { contenido.focus(); return; }
@@ -599,6 +1047,8 @@ function renderizar(opciones = {}) {
       contenido.append(vista);
     }
   }
+  else if (ruta === '#checkout') vistaCheckout();
+  else if (ruta === '#pedido-confirmado') vistaConfirmacion();
   else if (ruta === '#ingresar' || ruta === '#registro') { modoRegistro = ruta === '#registro'; activa = 'ingresar'; vistaAcceso(); }
   else if (ruta.startsWith('#libro-')) {
     activa = 'catalogo';
@@ -620,6 +1070,8 @@ function renderizar(opciones = {}) {
     if (ruta === '#catalogo' && autorSeleccionado) pasos.push(['Escritores', '#escritores'], [autorSeleccionado, '#escritor?autor=' + encodeURIComponent(autorSeleccionado)], ['Libros']);
     else if (ruta.startsWith('#libro-')) pasos.push(['Catálogo', '#catalogo'], [libros.find(libro => '#libro-' + libro.id === ruta)?.titulo || 'Libro no encontrado']);
     else if (ruta === '#escritor') pasos.push(['Escritores', '#escritores'], [escritores.find(escritor => escritor.nombre === new URLSearchParams(consultaRuta).get('autor'))?.nombre || 'Escritor no encontrado']);
+    else if (ruta === '#checkout') pasos.push(['Carrito', abrirCarrito], ['Finalizar compra']);
+    else if (ruta === '#pedido-confirmado') pasos.push(['Pedido confirmado']);
     else pasos.push([{ catalogo: 'Catálogo', escritores: 'Escritores', generos: 'Géneros', ingresar: modoRegistro ? 'Registro' : (usuario ? 'Mi cuenta' : 'Iniciar sesión') }[activa]]);
     const nav = rutaNavegacion(pasos);
     contenido.querySelector('.vista').prepend(nav);
@@ -629,7 +1081,7 @@ function renderizar(opciones = {}) {
     link.classList.toggle('navegacion__enlace--activo', seleccionado);
     if (seleccionado) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
   });
-  $('#ruta').textContent = { inicio: 'Tu espacio de lectura', catalogo: 'Biblioteca / Catálogo', generos: 'Biblioteca / Géneros', escritores: 'Biblioteca / Escritores', ingresar: 'Tu espacio / Mi cuenta' }[activa] || 'Tu espacio de lectura';
+  $('#ruta').textContent = { inicio: 'Tu espacio de lectura', catalogo: 'Biblioteca / Catálogo', generos: 'Biblioteca / Géneros', escritores: 'Biblioteca / Escritores', ingresar: 'Tu espacio / Mi cuenta', checkout: 'Tu espacio / Finalizar compra', 'pedido-confirmado': 'Tu espacio / Pedido confirmado' }[activa] || 'Tu espacio de lectura';
   const h1 = contenido.querySelector('h1');
   document.title = (h1 ? h1.textContent : 'Inicio') + ' · Editorial Codex';
   if (opciones.foco !== false && h1) h1.focus({ preventScroll: true });
@@ -690,7 +1142,8 @@ document.addEventListener('focusin', evento => {
   if (!evento.target.closest('.usuario')) cerrarMenuUsuario();
 });
 document.addEventListener('keydown', evento => {
-  if (evento.key === 'Escape') {
+  // Con un diálogo abierto, Esc lo cierra el propio <dialog> (evento cancel).
+  if (evento.key === 'Escape' && !document.querySelector('dialog[open]')) {
     if (!$('#menu-usuario').hidden) cerrarMenuUsuario(true);
     else if (menuAbierto) cambiarMenu(false);
   }
@@ -731,6 +1184,7 @@ function sincronizarRuta() {
   // Una navegación hash nativa puede copiar el estado de la entrada anterior.
   else if (entrada.id === entradaRenderizada && hash !== rutaAnterior) entrada = marcarEntrada(entrada.indice + 1);
   if (entrada.id === entradaRenderizada && hash === rutaAnterior) return;
+  cerrarDialogos();
   renderizar();
 }
 window.addEventListener('popstate', sincronizarRuta);
@@ -738,5 +1192,10 @@ window.addEventListener('hashchange', sincronizarRuta);
 aplicarTema(leerPreferencia('tema', 'oscuro') === 'claro' ? 'claro' : 'oscuro');
 aplicarColapso(leerPreferencia('menu', 'expandido') === 'colapsado');
 actualizarUsuario();
+prepararDialogo(dialogoLibro);
+prepararDialogo(dialogoCarrito);
+$('#abrir-carrito').addEventListener('click', () => abrirCarrito($('#abrir-carrito')));
+carrito = leerCarrito();
+actualizarContador();
 renderizar();
 
